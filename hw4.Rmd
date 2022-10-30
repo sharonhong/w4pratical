@@ -1,0 +1,65 @@
+---
+title: "hw4"
+author: "sharon"
+date: "2022-10-26"
+output: html_document
+---
+
+```{r}
+install.packages("countrycode")
+library(countrycode)
+
+library('sf')
+library('tmap')
+library('tmaptools')
+library('tidyverse')
+library('here')
+
+
+```
+
+```{r}
+world_shape <- st_read(here("World_Countries_(Generalized)","World_Countries__Generalized_.shp"))
+
+```
+
+
+```{r}
+gdi <- read_csv(here("gdi.csv"))
+gdi <- gdi %>%
+  mutate(diff=gdi_2019-gdi_2010)
+#gdi <- gdi %>%
+#  rename(ISO=iso3)
+```
+```{r}
+#countrycode('Albania', 'country.name', 'iso3c')
+
+gdi1 <- gdi %>%
+  mutate(code= countrycode(country,'country.name', 'iso3c'))
+
+world_shape1 <- world_shape %>%
+  mutate(code= countrycode(COUNTRY,'country.name', 'iso3c'))
+```
+
+```{r}
+shape <- left_join(world_shape1, gdi1, by = "code")
+```
+
+
+```{r}
+#plot
+library(tmap)
+tmap_mode("plot")
+# change the fill to your column name if different
+shape %>%
+  qtm(.,fill = "diff")
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
