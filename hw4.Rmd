@@ -21,6 +21,7 @@ library(countrycode)
 ```{r}
 world_shape <- st_read(here("World_Countries_(Generalized)","World_Countries__Generalized_.shp"))
 
+print(world_shape)
 ```
 
 
@@ -41,6 +42,8 @@ gdi1 <- gdi %>%
 
 world_shape1 <- world_shape %>%
   mutate(code= countrycode(COUNTRY,'country.name', 'iso3c'))
+
+#I keep getting a warning sign that value were not matched unambiguously, may be you would want to look into it
 ```
 
 ```{r}
@@ -122,6 +125,7 @@ tmap_mode("view")
 breaks=c(-0.6,-0.03,-0.01, 0.01, 1)
 tm_shape(shape) + 
   tm_polygons("diff", breaks=breaks, midpoint = NA) 
+
 ```
 
 ```
