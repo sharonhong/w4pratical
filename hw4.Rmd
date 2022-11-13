@@ -6,15 +6,15 @@ output: html_document
 ---
 
 ```{r}
-install.packages("countrycode")
-library(countrycode)
-
 library('sf')
 library('tmap')
 library('tmaptools')
 library('tidyverse')
 library('here')
-
+library(countrycode)
+#install.packages("countrycode")
+#package country code installed, hence removed it from the code segment as it 
+#repeatedly prompted restart while attempting to knit on save.
 
 ```
 
@@ -31,6 +31,8 @@ gdi <- gdi %>%
 #gdi <- gdi %>%
 #  rename(ISO=iso3)
 ```
+
+
 ```{r}
 #countrycode('Albania', 'country.name', 'iso3c')
 
@@ -54,12 +56,73 @@ tmap_mode("plot")
 shape %>%
   qtm(.,fill = "diff")
 ```
+```{r}
+print(shape)
+```
 
+
+
+
+## Plot the Gender Inequality Difference 2010 & 2019 map_for wk4Exam
 
 ```{r}
+tmap_mode("plot")
+
+breaks=c(-0.6,-0.03,-0.01, 0.01, 1, 50, 100, 150, 200) 
+
+tm1 <- tm_shape(shape) + 
+  tm_polygons("gdi_2010",
+              breaks=breaks,
+               palette="PuOr")+
+  tm_legend(show=FALSE)+
+  tm_layout(frame=FALSE)+
+  tm_credits("(a1: gii_2019)", position=c(0,0.85), size=1.5)
+
+
+tm2 <- tm_shape(shape) + 
+  tm_polygons("gdi_2019", 
+               breaks=breaks,
+             palette="PuOr")+
+  tm_legend(show=FALSE)+
+  tm_layout(frame=FALSE)+
+  tm_credits("(a2: gii_2010)", position=c(0,0.85), size=1.5)
+
+
+tm3 <- tm_shape(shape) + 
+  tm_polygons("diff", 
+               breaks=breaks, 
+              palette="PuOr")+
+  tm_legend(show=FALSE)+
+  tm_layout(frame=FALSE)+
+  tm_credits("(a3: gii_rank_2021)", position=c(0,0.85), size=1.5)
+
+
+legend <- tm_shape(shape) +
+    tm_polygons("diff",
+                 breaks=breaks,midpoint = NA,
+               palette="PuOr") +
+    tm_scale_bar(position=c(-0.4,0.8), text.size=0.6)+
+    tm_compass(north=0, position=c(0.65,0.6))+
+    tm_layout(legend.only = TRUE, legend.position=c(0.2,0.25),asp=0.1)+
+    tm_credits("Gender Inequality Difference 2010 & 2019", position=c(0.0,0.0))
+  
+t=tmap_arrange(tm1, tm2, tm3, legend, ncol=2)
 ```
 
 
 ```{r}
+print(t)
+```
+
+
+```{r}
+tmap_mode("view")
+
+
+breaks=c(-0.6,-0.03,-0.01, 0.01, 1)
+tm_shape(shape) + 
+  tm_polygons("diff", breaks=breaks, midpoint = NA) 
+```
+
 ```
 
