@@ -1,65 +1,70 @@
 ---
-title: "hw4"
-author: "sharon"
-date: "2022-10-26"
-output: html_document
+title: "hw4_fork"
+author: "Zirui Guo"
+date: "2022-11-12"
 ---
 
 ```{r}
-install.packages("countrycode")
 library(countrycode)
-
-library('sf')
-library('tmap')
-library('tmaptools')
-library('tidyverse')
-library('here')
-
-
+library(sf)
+library(tmap)
+library(tmaptools)
+library(tidyverse)
+library(here)
+library(janitor)
 ```
 
 ```{r}
 world_shape <- st_read(here("World_Countries_(Generalized)","World_Countries__Generalized_.shp"))
+HDI <- read_csv(here("HDR21-22_Composite_indices_complete_time_series.csv"),
+                locale = locale(encoding = 'latin1'),
+                na = '', skip = 0)
 
 ```
 
-
 ```{r}
-gdi <- read_csv(here("gdi.csv"))
-gdi <- gdi %>%
-  mutate(diff=gdi_2019-gdi_2010)
-#gdi <- gdi %>%
-#  rename(ISO=iso3)
-```
-```{r}
-#countrycode('Albania', 'country.name', 'iso3c')
-
-gdi1 <- gdi %>%
-  mutate(code= countrycode(country,'country.name', 'iso3c'))
-
-world_shape1 <- world_shape %>%
-  mutate(code= countrycode(COUNTRY,'country.name', 'iso3c'))
+HDIcols <- HDI %>% 
+  clean_names() %>% 
+  select(iso3, country, gii_2019, gii_2010) %>% 
+  mutate(difference = gii_2019 - gii_2010) %>% 
+  mutate(iso_code = countrycode(country, origin = 'country.name',
+                                destination = 'iso2c')) %>% 
+  mutate(iso_code2 = countrycode(iso3, origin = 'iso3c', destination = 
+                                   'iso2c'))
 ```
 
+join csv to shp file
+
 ```{r}
-shape <- left_join(world_shape1, gdi1, by = "code")
+join_HDI <- world_shape %>% 
+  clean_names() %>% 
+  left_join(.,
+            HDIcols,
+            by = c('iso' = 'iso_code'))
 ```
 
-
 ```{r}
-#plot
-library(tmap)
-tmap_mode("plot")
-# change the fill to your column name if different
-shape %>%
-  qtm(.,fill = "diff")
+# same thing but join by country
+join_HDI2 <- world_shape %>% 
+  clean_names() %>% 
+  left_join(.,
+            HDIcols,
+            by = c('country' = 'country'))
 ```
 
+# problem
+
+remain na value the entires for other island are't joined as they don't have same name
 
 ```{r}
+join_HDI_FR <- join_HDI %>% 
+  filter(aff_iso == 'FR')
+
+join_HDI_2_FR <- join_HDI2 %>% 
+  filter(aff_iso == 'FR')
 ```
 
-
 ```{r}
+qtm(join_HDI, fill = 'difference' )
 ```
 
